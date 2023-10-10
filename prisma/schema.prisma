@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model subscription {
+  id                String   @id(map: "PK_5aa9cf38a33da4d5e5a03df37b4") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  subscription_date DateTime @db.Timestamp(6)
+  userId            String  @db.Uuid
+  rideId            String  @db.Uuid
+  users             users   @relation(fields: [userId], references: [id])
+  rides             rides   @relation(fields: [rideId], references: [id])
+}
+
+model rides {
+  id                      String      @id(map: "PK_ca6f62fc1e999b139c7f28f07fd") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                    String      @db.VarChar
+  start_date_registration DateTime    @db.Timestamp(6)
+  end_date_registration   DateTime    @db.Timestamp(6)
+  additional_information  String?     @db.VarChar
+  start_place             String      @db.VarChar
+  participants_limit      Int?
+  start_date              DateTime    @db.Timestamp(6)
+  created_by              String      @db.Uuid
+  users                   users       @relation(fields: [created_by], references: [id])
+  subscriptions           subscription[]
+}
+
+model users {
+  id        String      @id(map: "PK_a3ffb1c0c8416b9fc6f907b7433") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name      String      @db.VarChar
+  email     String      @unique(map: "UQ_97672ac88f789774dd47f7c8be3") @db.VarChar
+  password  String
+  rides     rides[]
+  subscriptions          subscription[]
+}
